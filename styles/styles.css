@@ -3,10 +3,10 @@
     padding: 0;
     box-sizing: border-box;
 }
-
+ 
 body {
     margin: 0 auto;
-    background: black !important; 
+    background: #1f1f1f !important; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -21,7 +21,6 @@ canvas {
     background: white;
     display: block;
     border-radius: 10px 10px 0px 0px;
-
 }
 .box {
     background: white;
@@ -39,7 +38,7 @@ canvas {
     height: 110px;
     margin-top: -10px;
     border-radius: 0px 0px 10px 10px;
-    background: url(../assets/platform.png);
+    background: #1a0804;
 } 
 
 
