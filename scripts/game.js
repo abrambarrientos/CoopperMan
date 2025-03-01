@@ -2,7 +2,7 @@ var container = document.getElementById('canvas').parentElement;
 
 var config = {
     type: Phaser.AUTO,
-    width: container.clientWidth,
+    width: 800,
     height: 600,
     physics: {
         default: 'arcade',
@@ -11,7 +11,11 @@ var config = {
             debug: false
         }
     },
-    scene: [startScene, gameScene],  // Cambiar a [startScene, gameScene]
+    scene: {
+        preload: preload,
+        create: create,
+        update: update
+    },
     canvas: document.getElementById('canvas')
 };
 
@@ -26,55 +30,19 @@ var scoreText;
 
 var game = new Phaser.Game(config);
 
-// Escena de inicio
-var startScene = new Phaser.Scene('Start');
-
-startScene.preload = function() {
-    this.load.image('startScreen', 'img/ImgHero.jpg'); // Imagen de la pantalla de inicio
-    this.load.image('playButton', 'assets/btn.png'); // Imagen para el botón de play
-
-    this.load.on('loaderror', function(file) {
-        console.error('Error al cargar la imagen:', file.key);
-    });
-
-};
-
-startScene.create = function() {
-    // Añadir la imagen de fondo para la pantalla de inicio
-    this.add.image(container.clientWidth / 2, container.clientHeight / 2, 'startScreen');
-
-    // Crear un botón de play
-    var playButton = this.add.image(container.clientWidth / 2, container.clientHeight / 1.5, 'playButton').setInteractive();
-
-    // Hacer que el botón cambie de color al hacer clic
-    playButton.on('pointerover', function() {
-        playButton.setTint(0x44ff44); // Cambio de color al pasar el mouse
-    });
-    
-    playButton.on('pointerout', function() {
-        playButton.clearTint(); // Restaurar color al quitar el mouse
-    });
-
-    // Al hacer clic en el botón de play, iniciar el juego
-    playButton.on('pointerdown', function() {
-        this.scene.start('Game'); // Cambiar a la escena de juego
-    }, this);
-};
-
-// Escena del juego
-var gameScene = new Phaser.Scene('Game');
-
-gameScene.preload = function () {
+function preload ()
+{
     this.load.image('sky', 'assets/sky.png');
     this.load.image('ground', 'assets/platform.png');
     this.load.image('star', 'assets/star.png');
     this.load.image('bomb', 'assets/bomb.png');
     this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
-};
+}
 
-gameScene.create = function () {
+function create ()
+{
     //  A simple background for our game
-    this.add.image(300, 300, 'sky');
+    this.add.image(400, 300, 'sky');
 
     //  The platforms group contains the ground and the 2 ledges we can jump on
     platforms = this.physics.add.staticGroup();
@@ -127,8 +95,10 @@ gameScene.create = function () {
     });
 
     stars.children.iterate(function (child) {
+
         //  Give each star a slightly different bounce
         child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+
     });
 
     bombs = this.physics.add.group();
@@ -145,54 +115,75 @@ gameScene.create = function () {
     this.physics.add.overlap(player, stars, collectStar, null, this);
 
     this.physics.add.collider(player, bombs, hitBomb, null, this);
-};
+}
 
-gameScene.update = function () {
-    if (gameOver) {
+function update ()
+{
+    if (gameOver)
+    {
         return;
     }
 
-    if (cursors.left.isDown) {
+    if (cursors.left.isDown)
+    {
         player.setVelocityX(-160);
+
         player.anims.play('left', true);
-    } else if (cursors.right.isDown) {
+    }
+    else if (cursors.right.isDown)
+    {
         player.setVelocityX(160);
+
         player.anims.play('right', true);
-    } else {
+    }
+    else
+    {
         player.setVelocityX(0);
+
         player.anims.play('turn');
     }
 
-    if (cursors.up.isDown && player.body.touching.down) {
+    if (cursors.up.isDown && player.body.touching.down)
+    {
         player.setVelocityY(-330);
     }
-};
+}
 
-function collectStar (player, star) {
+function collectStar (player, star)
+{
     star.disableBody(true, true);
 
     //  Add and update the score
     score += 10;
     scoreText.setText('Score: ' + score);
 
-    if (stars.countActive(true) === 0) {
+    if (stars.countActive(true) === 0)
+    {
         //  A new batch of stars to collect
         stars.children.iterate(function (child) {
+
             child.enableBody(true, child.x, 0, true, true);
+
         });
 
         var x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
+
         var bomb = bombs.create(x, 16, 'bomb');
         bomb.setBounce(1);
         bomb.setCollideWorldBounds(true);
         bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
         bomb.allowGravity = false;
+
     }
 }
 
-function hitBomb (player, bomb) {
+function hitBomb (player, bomb)
+{
     this.physics.pause();
+
     player.setTint(0xff0000);
+
     player.anims.play('turn');
+
     gameOver = true;
 }

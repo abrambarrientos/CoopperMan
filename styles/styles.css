@@ -6,11 +6,12 @@
 
 body {
     margin: 0 auto;
-    background: black !important;
+    background: black !important; 
     display: flex;
     justify-content: center;
     align-items: center;
 }
+
 .container {
     max-width: 1200px;
 }
@@ -38,5 +39,6 @@ canvas {
     margin-top: -10px;
     border-radius: 0px 0px 10px 10px;
     background: url(../assets/platform.png);
-}
+} 
+
 
