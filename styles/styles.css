@@ -21,6 +21,7 @@ canvas {
     background: white;
     display: block;
     border-radius: 10px 10px 0px 0px;
+
 }
 .box {
     background: white;
@@ -40,5 +41,7 @@ canvas {
     border-radius: 0px 0px 10px 10px;
     background: url(../assets/platform.png);
 } 
+
+
 
 
