@@ -50,11 +50,14 @@
     <title>Making your first Phaser 3 Game - Part 10</title>
     <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
     <link rel="stylesheet" href="styles/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
 </head>
 
 <body>
+
+    <audio id="backgroundMusic" src="Sounds/MusicaPrincipal.mp3" loop></audio>
 
     <div class="container">
         <div class="row">
@@ -72,17 +75,19 @@
                 <div class="box small-box small-box2 w-100"></div>
             </div>
             <div class="col-5">
-                <div class="box small-box w-100"></div>
+                <div class="Vidas box small-box w-100"></div>
             </div>
             <div class="col-4">
                 <div class="box small-box w-100"></div>
             </div>
         </div>
     </div>
-    
+
+
+
     <script type="text/javascript">
         var container = document.getElementById('canvas').parentElement;
-    
+
         var config = {
             type: Phaser.AUTO,
             width: 800,
@@ -94,161 +99,222 @@
                     debug: false
                 }
             },
-            scene: [MenuScene,PlayerSetupScene, GameScene, ControlsScene, CreditsScene],
+            scene: [MenuScene, PlayerSetupScene, GameScene, ControlsScene, CreditsScene],
             canvas: document.getElementById('canvas')
         };
-    
+
         var game = new Phaser.Game(config);
-    
-    function MenuScene() 
-    {
-        Phaser.Scene.call(this, { key: 'MenuScene' });
-    }
 
-MenuScene.prototype = Object.create(Phaser.Scene.prototype);
-MenuScene.prototype.constructor = MenuScene;
+        function MenuScene() {
+            Phaser.Scene.call(this, { key: 'MenuScene' });
+        }
 
-MenuScene.prototype.preload = function () {
-    this.load.image('menuBackground', 'img/ImgHero.jpg'); // Fondo del menú
-    this.load.image('playButton', 'assets/play_button.png'); // Botón jugar
-    this.load.image('controlsButton', 'assets/controls_button.png'); // Botón controles
-    this.load.image('creditsButton', 'assets/credits_button.png'); // Botón créditos
-};
+        MenuScene.prototype = Object.create(Phaser.Scene.prototype);
+        MenuScene.prototype.constructor = MenuScene;
 
-MenuScene.prototype.create = function () {
-    // Agregar fondo
-    let background = this.add.image(400, 300, 'menuBackground');
-    background.setScale(
-    this.sys.game.config.width / background.width, 
-    this.sys.game.config.height / background.height
-);
-    // Botón de jugar
-    this.add.image(400, 350, 'playButton')
-        .setInteractive()
-        .on('pointerdown', () => this.scene.start('PlayerSetupScene'));
+        MenuScene.prototype.preload = function () {
+            this.load.image('menuBackground', 'img/ImgHero.jpg'); // Fondo del menú
+            this.load.image('playButton', 'assets/play_button.png'); // Botón jugar
+            this.load.image('controlsButton', 'assets/controls_button.png'); // Botón controles
+            this.load.image('creditsButton', 'assets/credits_button.png'); // Botón créditos
+            this.load.audio('backgroundMusic', 'Sounds/MusicaPrincipal.mp3'); // Carga el archivo de audio
+        };
 
-    // Botón de controles
-    this.add.image(400, 400, 'controlsButton')
-        .setInteractive()
-        .on('pointerdown', () => this.scene.start('ControlsScene'));
+        MenuScene.prototype.create = function () {
+            // Agregar fondo
+            let background = this.add.image(400, 300, 'menuBackground');
+            background.setScale(
+                this.sys.game.config.width / background.width,
+                this.sys.game.config.height / background.height
 
-    // Botón de créditos
-    this.add.image(400, 450, 'creditsButton')
-        .setInteractive()
-        .on('pointerdown', () => this.scene.start('CreditsScene'));
-};
+            );
 
-// NUEVA ESCENA PARA CONFIGURAR JUGADOR
-function PlayerSetupScene() {
-    Phaser.Scene.call(this, { key: 'PlayerSetupScene' });
-}
 
-PlayerSetupScene.prototype = Object.create(Phaser.Scene.prototype);
-PlayerSetupScene.prototype.constructor = PlayerSetupScene;
+            var music = this.sound.add('backgroundMusic');
+            music.play({
+                loop: true
+            });
 
-PlayerSetupScene.prototype.preload = function () {
-    this.load.image('player1', 'assets/dude.png'); // Usa el sprite ya cargado
-    this.load.image('player2', 'assets/bomb.png'); // Se usará la bomba como otro personaje
-};
+            // Botón de jugar
+            this.add.image(400, 350, 'playButton')
+                .setInteractive()
+                .on('pointerdown', () => this.scene.start('PlayerSetupScene'));
 
-PlayerSetupScene.prototype.create = function () {
-    this.add.text(200, 100, 'Ingresa tu nombre:', { fontSize: '24px', fill: '#fff' });
+            // Botón de controles
+            this.add.image(400, 400, 'controlsButton')
+                .setInteractive()
+                .on('pointerdown', () => this.scene.start('ControlsScene'));
 
-    let inputElement = document.createElement('input');
-    inputElement.type = 'text';
-    inputElement.id = 'playerNameInput';
-    inputElement.style.position = 'absolute';
-    inputElement.style.top = '120px';
-    inputElement.style.left = '300px';
-    inputElement.style.width = '200px';
-    document.body.appendChild(inputElement);
+            // Botón de créditos
+            this.add.image(400, 450, 'creditsButton')
+                .setInteractive()
+                .on('pointerdown', () => this.scene.start('CreditsScene'));
+        };
 
-    this.add.text(200, 200, 'Selecciona tu personaje:', { fontSize: '24px', fill: '#fff' });
+        // NUEVA ESCENA PARA CONFIGURAR JUGADOR
+        function PlayerSetupScene() {
+            Phaser.Scene.call(this, { key: 'PlayerSetupScene' });
+        }
 
-    let selectedCharacter = null;
+        PlayerSetupScene.prototype = Object.create(Phaser.Scene.prototype);
+        PlayerSetupScene.prototype.constructor = PlayerSetupScene;
 
-    let player1 = this.add.image(300, 300, 'player1')
-        .setInteractive()
-        .on('pointerdown', () => {
-            selectedCharacter = 'player1';
-            player1.setTint(0x00ff00); // Resalta el seleccionado
-            player2.clearTint();
-        });
+        PlayerSetupScene.prototype.preload = function () {
+            this.load.image('player1', 'assets/dude.png');
+            this.load.image('player2', 'assets/bomb.png');
+        };
 
-    let player2 = this.add.image(500, 300, 'player2')
-        .setInteractive()
-        .on('pointerdown', () => {
-            selectedCharacter = 'player2';
-            player2.setTint(0x00ff00);
-            player1.clearTint();
-        });
+        PlayerSetupScene.prototype.create = function () {
+            this.add.text(200, 100, 'Ingresa tu nombre:', { fontSize: '24px', fill: '#fff' });
 
-    let playButton = this.add.text(350, 400, 'Jugar', { fontSize: '24px', fill: '#0f0' })
-        .setInteractive()
-        .on('pointerdown', () => {
-            let playerName = inputElement.value.trim();
-            if (!/^[a-zA-Z]{4,8}$/.test(playerName)) {
-                alert('El nombre debe tener entre 4 y 8 letras.');
-                return;
-            }
-            if (!selectedCharacter) {
-                alert('Debes seleccionar un personaje.');
-                return;
+            let inputElement = document.createElement('input');
+            inputElement.type = 'text';
+            inputElement.id = 'playerNameInput';
+            inputElement.style.position = 'absolute';
+            inputElement.style.top = '120px';
+            inputElement.style.left = '300px';
+            inputElement.style.width = '200px';
+            document.body.appendChild(inputElement);
+
+            this.add.text(200, 200, 'Selecciona tu personaje:', { fontSize: '24px', fill: '#fff' });
+
+            let selectedCharacter = null;
+
+            let player1 = this.add.image(300, 300, 'player1')
+                .setInteractive()
+                .on('pointerdown', () => {
+                    selectedCharacter = 'player1';
+                    player1.setTint(0x00ff00); // Resalta el seleccionado
+                    player2.clearTint();
+                });
+
+            let player2 = this.add.image(500, 300, 'player2')
+                .setInteractive()
+                .on('pointerdown', () => {
+                    selectedCharacter = 'player2';
+                    player2.setTint(0x00ff00);
+                    player1.clearTint();
+                });
+
+            let playButton = this.add.text(350, 400, 'Jugar', { fontSize: '24px', fill: '#0f0' })
+                .setInteractive()
+                .on('pointerdown', () => {
+                    let playerName = inputElement.value.trim();
+                    if (!/^[a-zA-Z]{4,8}$/.test(playerName)) {
+                        alert('El nombre debe tener entre 4 y 8 letras.');
+                        return;
+                    }
+                    if (!selectedCharacter) {
+                        alert('Debes seleccionar un personaje.');
+                        return;
+                    }
+
+                    // Guardar en localStorage
+                    localStorage.setItem('playerName', playerName);
+                    localStorage.setItem('selectedCharacter', selectedCharacter);
+                    localStorage.setItem('score', 0); // Inicializa la puntuación
+
+                    // Remover el input de la pantalla
+                    document.body.removeChild(inputElement);
+
+                    // Ir al juego
+                    this.scene.start('GameScene');
+                });
+        };
+
+        // Función para obtener los jugadores guardados en localStorage
+        function getPlayersFromStorage() {
+            let players = localStorage.getItem('players');
+            return players ? JSON.parse(players) : [];
+        }
+
+        // Función para guardar un jugador en localStorage
+        function savePlayer(name, score) {
+            let players = getPlayersFromStorage();
+
+            // Buscar si el jugador ya existe
+            let existingPlayer = players.find(player => player.name === name);
+
+            if (existingPlayer) {
+                // Solo actualizar la puntuación si es mayor
+                if (score > existingPlayer.score) {
+                    existingPlayer.score = score;
+                }
+            } else {
+                // Agregar nuevo jugador
+                players.push({ name, score });
             }
 
             // Guardar en localStorage
-            localStorage.setItem('playerName', playerName);
-            localStorage.setItem('selectedCharacter', selectedCharacter);
-            localStorage.setItem('score', 0); // Inicializa la puntuación
+            localStorage.setItem('players', JSON.stringify(players));
 
-            // Remover el input de la pantalla
-            document.body.removeChild(inputElement);
+            // Actualizar tabla de puntuaciones
+            updateScoreTable();
+        }
 
-            // Ir al juego
-            this.scene.start('GameScene');
-        });
-};
+        // Función para actualizar la tabla de puntuaciones
+        function updateScoreTable() {
+            let players = getPlayersFromStorage();
 
-    
+            // Ordenar por puntuación de mayor a menor
+            players.sort((a, b) => b.score - a.score);
+
+            // Seleccionar la segunda columna para insertar la tabla
+            let scoreContainer = document.querySelector('.col-lg-4 .box');
+            scoreContainer.innerHTML = `<h3>Puntuaciones</h3>
+                                <table class="table table-dark">
+                                    <thead>
+                                        <tr>
+                                            <th class="fs-2">Nombre</th>
+                                            <th class="fs-2">Puntuación</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    ${players.map(player => `<tr class="fs-4"><td>${player.name}</td><td>${player.score}</td></tr>`).join('')}
+                                    </tbody>
+                                </table>`;
+        }
+
+
         function ControlsScene() {
             Phaser.Scene.call(this, { key: 'ControlsScene' });
         }
-    
+
         ControlsScene.prototype = Object.create(Phaser.Scene.prototype);
         ControlsScene.prototype.constructor = ControlsScene;
-    
+
         ControlsScene.prototype.create = function () {
             this.add.text(300, 150, 'Controles', { fontSize: '32px', fill: '#fff' });
             this.add.text(250, 250, 'Usa las flechas para moverte\nEspacio para saltar', { fontSize: '20px', fill: '#fff' });
-    
+
             this.add.text(350, 400, 'Volver', { fontSize: '24px', fill: '#ff0' })
                 .setInteractive()
                 .on('pointerdown', () => this.scene.start('MenuScene'));
         };
-    
+
         function CreditsScene() {
             Phaser.Scene.call(this, { key: 'CreditsScene' });
         }
-    
+
         CreditsScene.prototype = Object.create(Phaser.Scene.prototype);
         CreditsScene.prototype.constructor = CreditsScene;
-    
+
         CreditsScene.prototype.create = function () {
             this.add.text(300, 150, 'Créditos', { fontSize: '32px', fill: '#fff' });
             this.add.text(250, 250, 'Juego creado por: Tu Nombre', { fontSize: '20px', fill: '#fff' });
-    
+
             this.add.text(350, 400, 'Volver', { fontSize: '24px', fill: '#ff0' })
                 .setInteractive()
                 .on('pointerdown', () => this.scene.start('MenuScene'));
         };
-    
+
         function GameScene() {
             Phaser.Scene.call(this, { key: 'GameScene' });
         }
-    
+
         GameScene.prototype = Object.create(Phaser.Scene.prototype);
         GameScene.prototype.constructor = GameScene;
-    
+
         GameScene.prototype.preload = function () {
             this.load.image('sky', 'assets/sky.png');
             this.load.image('ground', 'assets/platform.png');
@@ -256,69 +322,78 @@ PlayerSetupScene.prototype.create = function () {
             this.load.image('bomb', 'assets/bomb.png');
             this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
         };
-    
+
         GameScene.prototype.create = function () {
+
+            this.isGameOver = false; // El juego empieza en falso
+
             this.add.image(400, 300, 'sky');
-    
+
             let platforms = this.physics.add.staticGroup();
             platforms.create(400, 568, 'ground').setScale(2).refreshBody();
             platforms.create(600, 400, 'ground');
             platforms.create(50, 250, 'ground');
             platforms.create(750, 220, 'ground');
-    
+
             this.player = this.physics.add.sprite(100, 450, 'dude');
             this.player.setBounce(0.2);
             this.player.setCollideWorldBounds(true);
-    
+
             this.anims.create({
                 key: 'left',
                 frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
                 frameRate: 10,
                 repeat: -1
             });
-    
+
             this.anims.create({
                 key: 'turn',
                 frames: [{ key: 'dude', frame: 4 }],
                 frameRate: 20
             });
-    
+
             this.anims.create({
                 key: 'right',
                 frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
                 frameRate: 10,
                 repeat: -1
             });
-    
+
             this.cursors = this.input.keyboard.createCursorKeys();
-    
+
             this.stars = this.physics.add.group({
                 key: 'star',
                 repeat: 11,
                 setXY: { x: 12, y: 0, stepX: 70 }
             });
-    
+
             this.stars.children.iterate(function (child) {
                 child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
             });
-    
+
             this.bombs = this.physics.add.group();
-    
-            this.score = 0;
-            this.scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#000' });
-    
+
+            // Vidas
+            this.lives = 3;
+            this.livesText = this.add.text(650, 16, `Vidas: ${this.lives}`, { fontSize: '32px', fill: '#f00' });
+
+            // Puntuación
+            this.score = parseInt(localStorage.getItem('score')) || 0;
+            this.scoreText = this.add.text(16, 16, `Score: ${this.score}`, { fontSize: '32px', fill: '#000' });
+
             this.physics.add.collider(this.player, platforms);
             this.physics.add.collider(this.stars, platforms);
             this.physics.add.collider(this.bombs, platforms);
             this.physics.add.overlap(this.player, this.stars, this.collectStar, null, this);
             this.physics.add.collider(this.player, this.bombs, this.hitBomb, null, this);
-    
-            this.gameOver = false;
+
+
         };
-    
+
+
         GameScene.prototype.update = function () {
-            if (this.gameOver) return;
-    
+            if (this.GameOver) return;
+
             if (this.cursors.left.isDown) {
                 this.player.setVelocityX(-160);
                 this.player.anims.play('left', true);
@@ -329,33 +404,94 @@ PlayerSetupScene.prototype.create = function () {
                 this.player.setVelocityX(0);
                 this.player.anims.play('turn');
             }
-    
+
             if (this.cursors.up.isDown && this.player.body.touching.down) {
                 this.player.setVelocityY(-330);
             }
         };
-    
+
+        // Funcion para guardar la puntuación en localStorage
         GameScene.prototype.collectStar = function (player, star) {
             star.disableBody(true, true);
-    
             this.score += 10;
-            this.scoreText.setText('Score: ' + this.score);
-    
+
+            // Guardar o actualizar la puntuación en localStorage
+            let playerName = localStorage.getItem('playerName') || "Jugador";
+            savePlayer(playerName, this.score);
+
+            this.scoreText.setText(`Score: ${this.score}`);
+
+            //Generar nuevas estrellas
             if (this.stars.countActive(true) === 0) {
-                this.stars.children.iterate(function (child) {
-                    child.enableBody(true, child.x, 0, true, true);
-                });
+                this.stars.children.iterate(child => { child.enableBody(true, child.x, 0, true, true); });
+                this.spawnBombs(); 
             }
         };
-    
+
+        // Función para generar bombas en posiciones aleatorias
+        GameScene.prototype.spawnBombs = function () {
+            for (let i = 0; i < 2; i++) { // Genera 2 bombas cada vez
+                let x = Phaser.Math.Between(100, 700);
+                let bomb = this.bombs.create(x, 16, 'bomb');
+                bomb.setBounce(1);
+                bomb.setCollideWorldBounds(true);
+                bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+            }
+        };
+
+        // Función cuando el jugador es golpeado por una bomba
         GameScene.prototype.hitBomb = function (player, bomb) {
-            this.physics.pause();
+            bomb.disableBody(true, true);
+            this.lives -= 1;
+            this.livesText.setText(`Vidas: ${this.lives}`);
+
+            if (this.lives <= 0 && !this.isGameOver) {
+                this.gameOver();
+                console.log("Game Over");
+            }
+        };
+
+        GameScene.prototype.gameOver = function () {
+            if (this.isGameOver) return; // Evita llamadas múltiples
+            this.isGameOver = true; // Marcar el estado de game over
+
+            // Pausa el jugador
             this.player.setTint(0xff0000);
             this.player.anims.play('turn');
-            this.gameOver = true;
+
+            // Eliminar controles
+            this.cursors.left.reset();
+            this.cursors.right.reset();
+            this.cursors.up.reset();
+
+            // Mostrar el texto de Game Over
+            let gameOverText = this.add.text(400, 200, 'GAME OVER', { fontSize: '48px', fill: '#f00' }).setOrigin(0.5);
+
+            // Botón de reinicio
+            let restartButton = this.add.text(400, 300, 'Reintentar', { fontSize: '32px', fill: '#0f0' })
+                .setInteractive()
+                .setOrigin(0.5)
+                .on('pointerdown', () => {
+                    this.scene.restart();
+                    this.isGameOver = false; // Reiniciar estado de gameOver
+                });
+
+            // Botón de menú
+            let menuButton = this.add.text(400, 350, 'Menú Principal', { fontSize: '32px', fill: '#ff0' })
+                .setInteractive()
+                .setOrigin(0.5)
+                .on('pointerdown', () => {
+                    this.scene.start('MenuScene');
+                });
+        };
+
+        window.onload = function () {
+            updateScoreTable();
+            var music = document.getElementById('backgroundMusic');
+            music.play();
         };
     </script>
-    
+
 
 </body>
 

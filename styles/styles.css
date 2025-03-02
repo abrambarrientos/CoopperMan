@@ -14,6 +14,10 @@ body {
 
 .container {
     max-width: 1200px;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
 }
 canvas {
     width: 100%;
@@ -41,6 +45,33 @@ canvas {
     background: #1a0804;
 } 
 
+.col-lg-4 .box{
+    padding: 20px;
+    border-radius: 10px;
+    background: transparent;
+    box-shadow: 0px 0px 10px 0px rgba(255, 255, 255, 0.1);
+    text-align: center;
+    font-family: "VT323", monospace;
+     background: url(/img/FondoHero.jpg); 
+     background-size: cover;
+     background-repeat: no-repeat;
+}
 
+.col-lg-4 .box h3 {
+    color: white;
+    font-size: 3rem;
+    margin-bottom: 40px;
+    font-weight: bold;
+    font-family: "VT323", monospace;
+}
+
+.col-lg-4 .box table .table-striped {
+    background: black;
+}
+.Vidas{
+    background: url(/img/VideoHero.gif);
+    background-size: cover;
+    background-repeat: no-repeat;
+}
 
 
