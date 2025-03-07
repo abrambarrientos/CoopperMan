@@ -65,11 +65,8 @@ canvas {
     font-family: "VT323", monospace;
 }
 
-.col-lg-4 .box table .table-striped {
-    background: black;
-}
 .Vidas{
-    background: url(/img/VideoHero.gif);
+    background: #1a0804;
     background-size: cover;
     background-repeat: no-repeat;
 }

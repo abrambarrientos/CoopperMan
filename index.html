@@ -312,6 +312,8 @@
             Phaser.Scene.call(this, { key: 'GameScene' });
         }
 
+        
+
         GameScene.prototype = Object.create(Phaser.Scene.prototype);
         GameScene.prototype.constructor = GameScene;
 
@@ -377,6 +379,9 @@
             this.lives = 3;
             this.livesText = this.add.text(650, 16, `Vidas: ${this.lives}`, { fontSize: '32px', fill: '#f00' });
 
+            // Grupo de disparos
+            this.bullets = this.physics.add.group();
+
             // Puntuación
             this.score = parseInt(localStorage.getItem('score')) || 0;
             this.scoreText = this.add.text(16, 16, `Score: ${this.score}`, { fontSize: '32px', fill: '#000' });
@@ -387,9 +392,23 @@
             this.physics.add.overlap(this.player, this.stars, this.collectStar, null, this);
             this.physics.add.collider(this.player, this.bombs, this.hitBomb, null, this);
 
-
+            // Tecla para disparar
+            this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+            this.physics.add.overlap(this.bullets, this.bombs, this.hitEnemy, null, this);
         };
 
+        // ✅ **Función para disparar hacia la dirección del jugador**
+            GameScene.prototype.shoot = function () {
+                if (this.isGameOver) return;
+
+                let bullet = this.bullets.create(this.player.x, this.player.y, 'bomb');
+                bullet.setScale(0.5);
+                bullet.body.allowGravity = false;
+
+                // Determinar la dirección del disparo
+                let direction = this.player.anims.currentAnim.key === 'left' ? -1 : 1;
+                bullet.setVelocityX(400 * direction);
+            };
 
         GameScene.prototype.update = function () {
             if (this.GameOver) return;
@@ -408,6 +427,59 @@
             if (this.cursors.up.isDown && this.player.body.touching.down) {
                 this.player.setVelocityY(-330);
             }
+
+            // Detectar disparo
+            if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
+                this.shoot();
+            }
+        };
+
+        // Función cuando el jugador es golpeado por una bomba
+        GameScene.prototype.hitBomb = function (player, bomb) {
+            this.lives -= 1;
+            this.livesText.setText(`Vidas: ${this.lives}`);
+
+            if (this.lives <= 0 && !this.isGameOver) {
+                this.gameOver();
+                console.log("Game Over");
+            }
+        };
+
+        //Colision de las balas a los enemigos
+        GameScene.prototype.hitEnemy = function (bullet, bomb) {
+            console.log("Impacto");
+
+            bullet.destroy(); // Eliminar la bala
+
+            if (bomb.health === undefined) {
+                bomb.health = 5; // Asignar vida
+            }
+
+            bomb.health -= 1;
+
+            //Cambiar color al recibir daño 
+            bomb.setTint(0xff0000);
+            setTimeout(() => {
+                bomb.clearTint(); // Volver al color normal después de 200ms
+            }, 200);
+
+            if (bomb.health <= 0) {
+                bomb.destroy();
+                this.score += 20;
+                this.scoreText.setText(`Score: ${this.score}`);
+            }
+        };
+
+        // Función para generar bombas en posiciones aleatorias
+        GameScene.prototype.spawnBombs = function () {
+            for (let i = 0; i < 2; i++) { // Genera 2 bombas cada vez
+                let x = Phaser.Math.Between(100, 700);
+                let bomb = this.bombs.create(x, 16, 'bomb');
+                bomb.setBounce(1);
+                bomb.setCollideWorldBounds(true);
+                bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+                bomb.health = 5;
+            }
         };
 
         // Funcion para guardar la puntuación en localStorage
@@ -424,38 +496,18 @@
             //Generar nuevas estrellas
             if (this.stars.countActive(true) === 0) {
                 this.stars.children.iterate(child => { child.enableBody(true, child.x, 0, true, true); });
-                this.spawnBombs(); 
+                this.spawnBombs();
             }
         };
 
-        // Función para generar bombas en posiciones aleatorias
-        GameScene.prototype.spawnBombs = function () {
-            for (let i = 0; i < 2; i++) { // Genera 2 bombas cada vez
-                let x = Phaser.Math.Between(100, 700);
-                let bomb = this.bombs.create(x, 16, 'bomb');
-                bomb.setBounce(1);
-                bomb.setCollideWorldBounds(true);
-                bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
-            }
-        };
-
-        // Función cuando el jugador es golpeado por una bomba
-        GameScene.prototype.hitBomb = function (player, bomb) {
-            bomb.disableBody(true, true);
-            this.lives -= 1;
-            this.livesText.setText(`Vidas: ${this.lives}`);
-
-            if (this.lives <= 0 && !this.isGameOver) {
-                this.gameOver();
-                console.log("Game Over");
-            }
-        };
+        
 
         GameScene.prototype.gameOver = function () {
             if (this.isGameOver) return; // Evita llamadas múltiples
             this.isGameOver = true; // Marcar el estado de game over
 
             // Pausa el jugador
+            this.physics.pause();
             this.player.setTint(0xff0000);
             this.player.anims.play('turn');
 
