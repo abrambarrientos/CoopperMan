@@ -161,7 +161,7 @@
 
         PlayerSetupScene.prototype.preload = function () {
             this.load.image('player1', 'assets/dude.png');
-            this.load.image('player2', 'assets/bomb.png');
+            this.load.image('player2', 'assets/dude1.png');
         };
 
         PlayerSetupScene.prototype.create = function () {
@@ -312,8 +312,6 @@
             Phaser.Scene.call(this, { key: 'GameScene' });
         }
 
-        
-
         GameScene.prototype = Object.create(Phaser.Scene.prototype);
         GameScene.prototype.constructor = GameScene;
 
@@ -323,9 +321,27 @@
             this.load.image('star', 'assets/star.png');
             this.load.image('bomb', 'assets/bomb.png');
             this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
+            this.load.spritesheet('dude1', 'assets/dude1.png', { frameWidth: 32, frameHeight: 48 });
         };
 
         GameScene.prototype.create = function () {
+
+            // Mapear 'player1' y 'player2' a sus respectivas spritesheets
+            let characterMap = {
+                player1: 'dude',
+                player2: 'dude1'
+            };
+
+            // Obtener la spritesheet correcta
+            let selectedCharacter = localStorage.getItem('selectedCharacter') || 'dude';
+            let characterKey = characterMap[selectedCharacter] || 'dude';  // Valor por defecto
+            // Obtener el personaje seleccionado desde localStorage
+           
+
+
+            // Agregar el jugador a la escena con la imagen correcta
+            this.player = this.physics.add.sprite(100, 450, selectedCharacter);
+            this.player.setCollideWorldBounds(true);
 
             this.isGameOver = false; // El juego empieza en falso
 
@@ -337,26 +353,26 @@
             platforms.create(50, 250, 'ground');
             platforms.create(750, 220, 'ground');
 
-            this.player = this.physics.add.sprite(100, 450, 'dude');
+            this.player = this.physics.add.sprite(100, 450, characterKey);
             this.player.setBounce(0.2);
             this.player.setCollideWorldBounds(true);
 
             this.anims.create({
                 key: 'left',
-                frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
+                frames: this.anims.generateFrameNumbers(characterKey, { start: 0, end: 3 }),
                 frameRate: 10,
                 repeat: -1
             });
 
             this.anims.create({
                 key: 'turn',
-                frames: [{ key: 'dude', frame: 4 }],
+                frames: [{ key: characterKey, frame: 4 }],
                 frameRate: 20
             });
 
             this.anims.create({
                 key: 'right',
-                frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+                frames: this.anims.generateFrameNumbers(characterKey, { start: 5, end: 8 }),
                 frameRate: 10,
                 repeat: -1
             });
@@ -398,17 +414,17 @@
         };
 
         // ✅ **Función para disparar hacia la dirección del jugador**
-            GameScene.prototype.shoot = function () {
-                if (this.isGameOver) return;
+        GameScene.prototype.shoot = function () {
+            if (this.isGameOver) return;
 
-                let bullet = this.bullets.create(this.player.x, this.player.y, 'bomb');
-                bullet.setScale(0.5);
-                bullet.body.allowGravity = false;
+            let bullet = this.bullets.create(this.player.x, this.player.y, 'bomb');
+            bullet.setScale(0.5);
+            bullet.body.allowGravity = false;
 
-                // Determinar la dirección del disparo
-                let direction = this.player.anims.currentAnim.key === 'left' ? -1 : 1;
-                bullet.setVelocityX(400 * direction);
-            };
+            // Determinar la dirección del disparo
+            let direction = this.player.anims.currentAnim.key === 'left' ? -1 : 1;
+            bullet.setVelocityX(400 * direction);
+        };
 
         GameScene.prototype.update = function () {
             if (this.GameOver) return;
@@ -500,7 +516,7 @@
             }
         };
 
-        
+
 
         GameScene.prototype.gameOver = function () {
             if (this.isGameOver) return; // Evita llamadas múltiples
