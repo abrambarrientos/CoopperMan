@@ -66,9 +66,20 @@ canvas {
 }
 
 .Vidas{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     background: #1a0804;
     background-size: cover;
     background-repeat: no-repeat;
+    padding: 30px;
 }
 
+.life-icon{
+    width: 30px;
+    height: auto;
+    margin-right: 5px;
+}
 
