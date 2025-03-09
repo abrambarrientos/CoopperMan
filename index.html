@@ -88,6 +88,115 @@
 
 
     <script type="text/javascript">
+
+        class NextLevel extends Phaser.Scene {
+            constructor() {
+                super({ key: 'NextLevel' });
+            }
+
+            preload() {
+                this.load.image('sky', 'assets/sky.png');
+                this.load.image('ground', 'assets/platform.png');
+                this.load.image('bomb', 'assets/bomb.png');
+                this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
+            }
+
+            create() {
+                console.log("NextLevel cargado correctamente!");
+
+                // Fondo del nivel
+                this.add.image(400, 300, 'sky');
+
+                // Crear plataformas (suelo)
+                let platforms = this.physics.add.staticGroup();
+                platforms.create(400, 568, 'ground').setScale(2).refreshBody(); // Suelo grande
+                platforms.create(900, 450, 'ground');
+                platforms.create(1400, 350, 'ground');
+                platforms.create(1800, 250, 'ground');
+                platforms.create(2200, 400, 'ground');
+
+                // Jugador
+                this.player = this.physics.add.sprite(100, 450, 'dude');
+                this.player.setBounce(0.2);
+                this.player.setCollideWorldBounds(true);
+                this.physics.add.collider(this.player, platforms);
+
+                // Animaciones del jugador
+                this.anims.create({
+                    key: 'left',
+                    frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
+                    frameRate: 10,
+                    repeat: -1
+                });
+
+                this.anims.create({
+                    key: 'turn',
+                    frames: [{ key: 'dude', frame: 4 }],
+                    frameRate: 20
+                });
+
+                this.anims.create({
+                    key: 'right',
+                    frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+                    frameRate: 10,
+                    repeat: -1
+                });
+
+                // Configurar controles
+                this.cursors = this.input.keyboard.createCursorKeys();
+
+                // Enemigos o trampas (bombas)
+                this.bombs = this.physics.add.group();
+                this.spawnBombs(5); // Crear más bombas
+
+                // Puntuación
+                this.score = 0;
+                this.scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#000' });
+
+                // Colisiones
+                this.physics.add.collider(this.bombs, platforms);
+                this.physics.add.collider(this.player, this.bombs, this.hitBomb, null, this);
+
+                // Cámara
+                this.cameras.main.startFollow(this.player);
+                this.physics.world.setBounds(0, 0, 2500, 600);
+                this.cameras.main.setBounds(0, 0, 2500, 600);
+            }
+
+            update() {
+                if (this.cursors.left.isDown) {
+                    this.player.setVelocityX(-160);
+                    this.player.anims.play('left', true);
+                } else if (this.cursors.right.isDown) {
+                    this.player.setVelocityX(160);
+                    this.player.anims.play('right', true);
+                } else {
+                    this.player.setVelocityX(0);
+                    this.player.anims.play('turn');
+                }
+
+                if (this.cursors.up.isDown && this.player.body.touching.down) {
+                    this.player.setVelocityY(-330);
+                }
+            }
+
+            spawnBombs(quantity) {
+                for (let i = 0; i < quantity; i++) {
+                    let x = Phaser.Math.Between(200, 2200);
+                    let bomb = this.bombs.create(x, 16, 'bomb');
+                    bomb.setBounce(1);
+                    bomb.setCollideWorldBounds(true);
+                    bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+                }
+            }
+
+            hitBomb(player, bomb) {
+                this.physics.pause();
+                player.setTint(0xff0000);
+                player.anims.play('turn');
+                this.scene.restart(); // Reinicia el nivel si el jugador toca una bomba
+            }
+        }
         var container = document.getElementById('canvas').parentElement;
 
         var config = {
@@ -101,7 +210,7 @@
                     debug: false
                 }
             },
-            scene: [MenuScene, PlayerSetupScene, GameScene, ControlsScene, CreditsScene],
+            scene: [MenuScene, PlayerSetupScene, GameScene, ControlsScene, CreditsScene, NextLevel],
             canvas: document.getElementById('canvas')
         };
 
@@ -243,8 +352,12 @@
                     existingPlayer.score = score;
                 }
             } else {
-                // Agregar nuevo jugador
-                players.push({ name, score });
+                // Agregar nuevo jugador con la fecha actual
+                players.push({
+                    name,
+                    score,
+                    date: new Date().toLocaleDateString() // Guardar la fecha de registro
+                });
             }
 
             // Guardar en localStorage
@@ -261,7 +374,7 @@
             // Ordenar por puntuación de mayor a menor
             players.sort((a, b) => b.score - a.score);
 
-            // Seleccionar la segunda columna para insertar la tabla
+            // Seleccionar el contenedor donde se insertará la tabla
             let scoreContainer = document.querySelector('.col-lg-4 .box');
             scoreContainer.innerHTML = `<h3>Puntuaciones</h3>
                                 <table class="table table-dark">
@@ -269,14 +382,19 @@
                                         <tr>
                                             <th class="fs-2">Nombre</th>
                                             <th class="fs-2">Puntuación</th>
+                                            <th class="fs-2">Fecha de Registro</th> <!-- Nueva columna -->
                                         </tr>
                                     </thead>
                                     <tbody>
-                                    ${players.map(player => `<tr class="fs-4"><td>${player.name}</td><td>${player.score}</td></tr>`).join('')}
+                                    ${players.map(player => `
+                                        <tr class="fs-4">
+                                            <td>${player.name}</td>
+                                            <td>${player.score}</td>
+                                            <td>${player.date || 'N/A'}</td> <!-- Mostrar 'N/A' si no tiene fecha -->
+                                        </tr>`).join('')}
                                     </tbody>
                                 </table>`;
         }
-
 
         function ControlsScene() {
             Phaser.Scene.call(this, { key: 'ControlsScene' });
@@ -514,7 +632,9 @@
 
             if (this.score >= 50 && !this.isGameOver) {
                 this.showCongratulations();
+                return;
             }
+
 
             if (this.cursors.left.isDown) {
                 this.player.setVelocityX(-160);
@@ -549,7 +669,6 @@
                 this.livesContainer.appendChild(img);
             }
         };
-
 
         // Función cuando el jugador es golpeado por una bomba
         GameScene.prototype.hitBomb = function (player, bomb) {
@@ -621,8 +740,6 @@
             }
         };
 
-
-
         GameScene.prototype.gameOver = function () {
             if (this.isGameOver) return; // Evita llamadas múltiples
             this.isGameOver = true; // Marcar el estado de game over
@@ -691,15 +808,6 @@
         GameScene.prototype.goToMainMenu = function () {
             this.scene.start('MenuScene');
         };
-
-        // Ejemplo de una nueva escena para el siguiente nivel
-        NextLevel.prototype.create = function () {
-            // Aquí puedes cambiar la disposición del nivel, enemigos, plataformas, etc.
-            this.add.text(400, 300, 'Nivel 2', { fontSize: '48px', fill: '#fff' }).setOrigin(0.5);
-        };
-
-
-
 
 
         window.onload = function () {
