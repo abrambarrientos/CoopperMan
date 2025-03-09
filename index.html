@@ -318,6 +318,9 @@
         GameScene.prototype.constructor = GameScene;
 
         GameScene.prototype.preload = function () {
+            this.load.image('nextLevelButton', 'assets/nextLevelButton.png');
+            this.load.image('menuButton', 'assets/menuButton.png');
+
             this.load.image('sky', 'assets/sky.png');
             this.load.image('ground', 'assets/platform.png');
             this.load.image('mountain', 'assets/mountain.png');
@@ -509,7 +512,9 @@
                 console.log("Nueva bomba");
             }
 
-            
+            if (this.score >= 50 && !this.isGameOver) {
+                this.showCongratulations();
+            }
 
             if (this.cursors.left.isDown) {
                 this.player.setVelocityX(-160);
@@ -652,6 +657,50 @@
                     this.scene.start('MenuScene');
                 });
         };
+
+        GameScene.prototype.showCongratulations = function () {
+            this.isGameOver = true;  // Bloquear el juego para que no continúe mientras se muestra el mensaje
+
+            // Detener la física y las animaciones
+            this.physics.pause();
+            this.player.setTint(0x00ff00);  // Puedes cambiar el color del jugador para dar efecto de "felicitación"
+
+            // Mostrar el mensaje de felicitaciones
+            let congratulationsText = this.add.text(400, 200, '¡Felicidades! Has alcanzado 1000 puntos.', {
+                fontSize: '48px',
+                fill: '#fff'
+            }).setOrigin(0.5);
+
+            // Botón de siguiente nivel
+            let nextLevelButton = this.add.image(400, 300, 'nextLevelButton').setInteractive();
+            nextLevelButton.on('pointerdown', () => {
+                this.startNextLevel();
+            });
+
+            // Botón de volver al menú
+            let menuButton = this.add.image(400, 400, 'menuButton').setInteractive();
+            menuButton.on('pointerdown', () => {
+                this.goToMainMenu();
+            });
+        };
+
+        GameScene.prototype.startNextLevel = function () {
+            this.scene.start('NextLevel');  // Cambia 'NextLevel' por el nombre de tu escena de siguiente nivel
+        };
+
+        GameScene.prototype.goToMainMenu = function () {
+            this.scene.start('MenuScene');
+        };
+
+        // Ejemplo de una nueva escena para el siguiente nivel
+        NextLevel.prototype.create = function () {
+            // Aquí puedes cambiar la disposición del nivel, enemigos, plataformas, etc.
+            this.add.text(400, 300, 'Nivel 2', { fontSize: '48px', fill: '#fff' }).setOrigin(0.5);
+        };
+
+
+
+
 
         window.onload = function () {
             updateScoreTable();
