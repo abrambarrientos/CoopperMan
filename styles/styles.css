@@ -74,12 +74,31 @@ canvas {
     background: #1a0804;
     background-size: cover;
     background-repeat: no-repeat;
-    padding: 30px;
+    padding: 0px 30px;
 }
 
 .life-icon{
-    width: 30px;
+    width: 80px;
     height: auto;
     margin-right: 5px;
 }
 
+.Opciones{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #1a0804;
+    gap: 10px;
+}
+
+.Opciones img{
+    width: 80px;
+    cursor: pointer;
+    transition: .3s all;
+}
+
+.Opciones img:hover{
+    transform: scale(1.1);
+}

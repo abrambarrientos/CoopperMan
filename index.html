@@ -77,18 +77,18 @@
             <div class="col-5">
                 <div class="Vidas box small-box w-100">
                     <div id="lives-container"></div><!--Contenedor para las vidas-->
+                    <div id="Puntaje"></div>
                 </div>
             </div>
             <div class="col-4">
-                <div class="box small-box w-100">
-                    <img id="toggleMusicBtn" src="assets/btn.png" alt="Toggle Music"
-                        style="width:80px; cursor:pointer;">
+                <div class="Opciones box small-box w-100">
+                    <img id="toggleMusicBtn" src="assets/BtnSonido.png" alt="Toggle Music">
 
                     <!-- Botón para Pausar el Juego -->
-                    <img id="pauseGameBtn" src="assets/btn.png" alt="Pause Game" style="width:80px; cursor:pointer;">
+                    <img id="pauseGameBtn" src="assets/BtnPause.png" alt="Pause Game" >
 
                     <!-- Botón para Salir al Menú -->
-                    <img id="exitGameBtn" src="assets/btn.png" alt="Exit Game" style="width:80px; cursor:pointer;">
+                    <img id="exitGameBtn" src="assets/BtnMenu.png" alt="Exit Game">
                 </div>
             </div>
         </div>
@@ -960,7 +960,7 @@
         GameScene.prototype.preload = function () {
             this.load.image('nextLevelButton', 'assets/nextLevelButton.png');
             this.load.image('menuButton', 'assets/menuButton.png');
-
+            this.load.image('vidas', 'assets/Vidas.png');
             this.load.image('sky', 'assets/sky.png');
             this.load.image('ground', 'assets/platform.png');
             this.load.image('mountain', 'assets/mountain.png');
@@ -1282,7 +1282,7 @@
             // Agregar una imagen por cada vida restante
             for (let i = 0; i < this.lives; i++) {
                 let img = document.createElement("img");
-                img.src = "assets/bomb.png"; // Ruta correcta de la imagen de vida
+                img.src = "assets/Vidas.png"; // Ruta correcta de la imagen de vida
                 img.classList.add("life-icon"); // Clase CSS para darle estilo
                 this.livesContainer.appendChild(img);
             }
