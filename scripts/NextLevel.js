@@ -1,18 +1,16 @@
-
 class NextLevel extends Phaser.Scene {
-
     constructor() {
         super({ key: 'NextLevel' });
     }
 
     preload() {
-        this.load.image('sky1', 'img/FondoHero1.jpg');
-        this.load.image('ground1', 'assets/platform1.png');
+        this.load.image('sky', 'assets/sky.png');
+        this.load.image('ground', 'assets/platform.png');
         this.load.image('bomb', 'assets/bomb.png');
         this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
     }
 
-    create = function () {
+    create() {
         // Hacer el nivel mucho más largo
         let levelWidth = this.sys.game.config.width * 4; // 4 veces el ancho de la pantalla
         // Mapear 'player1' y 'player2' a sus respectivas spritesheets
@@ -53,22 +51,22 @@ class NextLevel extends Phaser.Scene {
 
         // Crear plataformas
         let platforms = this.physics.add.staticGroup();
-        platforms.create(400, 568, 'ground1').setScale(2).refreshBody();
-        platforms.create(800, 568, 'ground1').setScale(2).refreshBody();
-        platforms.create(1200, 568, 'ground1').setScale(2).refreshBody();
-        platforms.create(1600, 568, 'ground1').setScale(2).refreshBody();
-        platforms.create(2000, 568, 'ground1').setScale(2).refreshBody();
-        platforms.create(2400, 568, 'ground1').setScale(2).refreshBody();
-        platforms.create(2800, 568, 'ground1').setScale(2).refreshBody();
-        platforms.create(3200, 568, 'ground1').setScale(2).refreshBody();
-        platforms.create(3600, 568, 'ground1').setScale(2).refreshBody();
-        platforms.create(4000, 568, 'ground1').setScale(2).refreshBody();
-        platforms.create(800, 450, 'ground1');
-        platforms.create(1200, 350, 'ground1');
-        platforms.create(1600, 250, 'ground1');
-        platforms.create(2000, 400, 'ground1');
-        platforms.create(2500, 500, 'ground1');
-        platforms.create(2500, 500, 'ground1');
+        platforms.create(400, 568, 'ground').setScale(2).refreshBody();
+        platforms.create(800, 568, 'ground').setScale(2).refreshBody();
+        platforms.create(1200, 568, 'ground').setScale(2).refreshBody();
+        platforms.create(1600, 568, 'ground').setScale(2).refreshBody();
+        platforms.create(2000, 568, 'ground').setScale(2).refreshBody();
+        platforms.create(2400, 568, 'ground').setScale(2).refreshBody();
+        platforms.create(2800, 568, 'ground').setScale(2).refreshBody();
+        platforms.create(3200, 568, 'ground').setScale(2).refreshBody();
+        platforms.create(3600, 568, 'ground').setScale(2).refreshBody();
+        platforms.create(4000, 568, 'ground').setScale(2).refreshBody();
+        platforms.create(800, 450, 'ground');
+        platforms.create(1200, 350, 'ground');
+        platforms.create(1600, 250, 'ground');
+        platforms.create(2000, 400, 'ground');
+        platforms.create(2500, 500, 'ground');
+        platforms.create(2500, 500, 'ground');
 
         this.specialItemGroup = this.physics.add.group();
 
@@ -157,25 +155,9 @@ class NextLevel extends Phaser.Scene {
         // Asegurar que el jugador pueda moverse dentro de los límites del mundo
         this.physics.world.setBounds(0, 0, levelWidth, this.sys.game.config.height);
         this.lastSpawnX = this.player.x; // Inicializar la última posición de spawn
+    }
 
-
-    };
-
-    // ✅ **Función para disparar hacia la dirección del jugador**
-    shoot = function () {
-        if (this.isGameOver) return;
-
-        let bullet = this.bullets.create(this.player.x, this.player.y, 'bomb');
-        bullet.setScale(0.5);
-        bullet.body.allowGravity = false;
-
-        // Determinar la dirección del disparo
-        let direction = this.player.anims.currentAnim.key === 'left' ? -1 : 1;
-        bullet.setVelocityX(400 * direction);
-    };
-
-    update = function () {
-
+    update() {
         if (!this.player || this.isGameOver) return;
 
 
@@ -243,7 +225,69 @@ class NextLevel extends Phaser.Scene {
                 specialItem.countdownText.y = specialItem.y - 50;
             }
         });
-    };
+    }
+
+    getPlayersFromStorage() {
+        let players = localStorage.getItem('players');
+        return players ? JSON.parse(players) : [];
+    }
+
+    // Función para guardar un jugador en localStorage
+    // savePlayer(name, score) {
+    //     let players = getPlayersFromStorage();
+
+    //     // Buscar si el jugador ya existe
+    //     let existingPlayer = players.find(player => player.name === name);
+
+    //     if (existingPlayer) {
+    //         // Solo actualizar la puntuación si es mayor
+    //         if (score > existingPlayer.score) {
+    //             existingPlayer.score = score;
+    //         }
+    //     } else {
+    //         // Agregar nuevo jugador con la fecha actual
+    //         players.push({
+    //             name,
+    //             score,
+    //             date: new Date().toLocaleDateString() // Guardar la fecha de registro
+    //         });
+    //     }
+
+    //     // Guardar en localStorage
+    //     localStorage.setItem('players', JSON.stringify(players));
+
+    //     // Actualizar tabla de puntuaciones
+    //     updateScoreTable();
+    // }
+
+    // Función para actualizar la tabla de puntuaciones
+    // updateScoreTable() {
+    //     let players = getPlayersFromStorage();
+
+    //     // Ordenar por puntuación de mayor a menor
+    //     players.sort((a, b) => b.score - a.score);
+
+    //     // Seleccionar el contenedor donde se insertará la tabla
+    //     let scoreContainer = document.querySelector('.col-lg-4 .box');
+    //     scoreContainer.innerHTML = `<h3>Puntuaciones</h3>
+    //                     <table class="table table-dark">
+    //                         <thead>
+    //                             <tr>
+    //                                 <th class="fs-2">Nombre</th>
+    //                                 <th class="fs-2">Puntuación</th>
+    //                                 <th class="fs-2">Fecha de Registro</th> <!-- Nueva columna -->
+    //                             </tr>
+    //                         </thead>
+    //                         <tbody>
+    //                         ${players.map(player => `
+    //                             <tr class="fs-4">
+    //                                 <td>${player.name}</td>
+    //                                 <td>${player.score}</td>
+    //                                 <td>${player.date || 'N/A'}</td> <!-- Mostrar 'N/A' si no tiene fecha -->
+    //                             </tr>`).join('')}
+    //                         </tbody>
+    //                     </table>`;
+    // }
 
     spawnSpecialItem = function () {
         // Crea el ítem un poco adelante del jugador para que sea visible
@@ -295,69 +339,6 @@ class NextLevel extends Phaser.Scene {
             repeat: 4 // Repetimos 4 veces. (0 -> 5s totales)
         });
     };
-
-    // Función para obtener los jugadores guardados en localStorage
-    getPlayersFromStorage() {
-        let players = localStorage.getItem('players');
-        return players ? JSON.parse(players) : [];
-    }
-
-    // Función para guardar un jugador en localStorage
-    savePlayer(name, score) {
-        let players = getPlayersFromStorage();
-
-        // Buscar si el jugador ya existe
-        let existingPlayer = players.find(player => player.name === name);
-
-        if (existingPlayer) {
-            // Solo actualizar la puntuación si es mayor
-            if (score > existingPlayer.score) {
-                existingPlayer.score = score;
-            }
-        } else {
-            // Agregar nuevo jugador con la fecha actual
-            players.push({
-                name,
-                score,
-                date: new Date().toLocaleDateString() // Guardar la fecha de registro
-            });
-        }
-
-        // Guardar en localStorage
-        localStorage.setItem('players', JSON.stringify(players));
-
-        // Actualizar tabla de puntuaciones
-        updateScoreTable();
-    }
-
-    // Función para actualizar la tabla de puntuaciones
-    updateScoreTable() {
-        let players = getPlayersFromStorage();
-
-        // Ordenar por puntuación de mayor a menor
-        players.sort((a, b) => b.score - a.score);
-
-        // Seleccionar el contenedor donde se insertará la tabla
-        let scoreContainer = document.querySelector('.col-lg-4 .box');
-        scoreContainer.innerHTML = `<h3>Puntuaciones</h3>
-                            <table class="table table-dark">
-                                <thead>
-                                    <tr>
-                                        <th class="fs-2">Nombre</th>
-                                        <th class="fs-2">Puntuación</th>
-                                        <th class="fs-2">Fecha de Registro</th> <!-- Nueva columna -->
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                ${players.map(player => `
-                                    <tr class="fs-4">
-                                        <td>${player.name}</td>
-                                        <td>${player.score}</td>
-                                        <td>${player.date || 'N/A'}</td> <!-- Mostrar 'N/A' si no tiene fecha -->
-                                    </tr>`).join('')}
-                                </tbody>
-                            </table>`;
-    }
 
     collectSpecialItem = function (player, specialItem) {
         // Desactivarlo inmediatamente (ya no colisiona)
@@ -443,7 +424,6 @@ class NextLevel extends Phaser.Scene {
             bomb.health = 5;
         }
     };
-
     // Funcion para guardar la puntuación en localStorage
     collectStar = function (player, star) {
         star.disableBody(true, true);
@@ -528,8 +508,6 @@ class NextLevel extends Phaser.Scene {
     };
 
     goToMainMenu = function () {
-        this.scene.start('MenuScene');
-    };
+    }
 
-    onload = function () { }
 }
